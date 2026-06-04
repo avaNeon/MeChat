@@ -1,0 +1,35 @@
+package com.neon.mechat.mapper;
+
+import com.neon.mechat.entity.Message;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+@Mapper
+public interface MessageMapper
+{
+    /**
+     * 插入消息记录，消息 ID 使用数据库自增主键生成。
+     *
+     * @param message 消息实体
+     * @return 影响行数
+     */
+    int insert(Message message);
+
+    /**
+     * 根据消息 ID 查询完整消息，主要用于插入后回查数据库生成的发送时间。
+     *
+     * @param id 消息 ID
+     * @return 消息实体
+     */
+    Message selectById(@Param("id") Long id);
+
+    /**
+     * 根据发送者和客户端消息 ID 查询消息，用于客户端重试发送时保证幂等。
+     *
+     * @param senderId        发送者用户 ID
+     * @param clientMessageId 客户端生成的消息 ID
+     * @return 已存在的消息，不存在时返回 null
+     */
+    Message selectBySenderAndClientMessageId(@Param("senderId") Long senderId,
+                                             @Param("clientMessageId") String clientMessageId);
+}
