@@ -1,5 +1,6 @@
 package com.neon.mechat.common;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,10 +8,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "统一接口响应")
 public class ApiResponse<T>
 {
+    @Schema(description = "业务状态码，0 表示成功", example = "0")
     private int code;
+
+    @Schema(description = "响应消息", example = "success")
     private String message;
+
+    @Schema(description = "业务数据")
     private T data;
 
     /**
