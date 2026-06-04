@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neon.mechat.mapper.AccountMapper">
+    <insert id="insert" parameterType="com.neon.mechat.entity.Account">
+        INSERT INTO account (user_id, nickname, password, avatar)
+        VALUES (#{userId}, #{nickname}, #{password}, #{avatar})
+    </insert>
+
+    <select id="selectByUserId" resultType="com.neon.mechat.entity.Account">
+        SELECT user_id, nickname, password, avatar, create_time AS created_at
+        FROM account
+        WHERE user_id = #{userId}
+        LIMIT 1
+    </select>
+
+    <select id="existsByUserId" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM account
+        WHERE user_id = #{userId}
+    </select>
+</mapper>

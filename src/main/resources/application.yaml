@@ -11,7 +11,7 @@ spring:
       max-file-size: 100MB
       max-request-size: 1000MB
   datasource:
-    url: jdbc:mysql://rocky16:3306/whatsup?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://rocky16:3306/MeChat?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: mysql
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -58,3 +58,11 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+
+mechat:
+  account:
+    login-token-ttl: 7d
+    login-token-renew-threshold: 1d
+  snowflake:
+    worker-id: 1
+    datacenter-id: 1
