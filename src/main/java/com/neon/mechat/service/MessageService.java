@@ -11,10 +11,13 @@ import com.neon.mechat.mapper.MessageMapper;
 import com.neon.mechat.repository.AccountRepository;
 import com.neon.mechat.support.SnowflakeIdGenerator;
 import com.neon.mechat.vo.MessageVO;
+import com.neon.mechat.websocket.MessagePushService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -26,6 +29,7 @@ public class MessageService
     private final ConversationMapper conversationMapper;
     private final MessageMapper messageMapper;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
+    private final MessagePushService messagePushService;
 
     /**
      * 发送单聊消息。
@@ -75,7 +79,9 @@ public class MessageService
         }
 
         conversationMapper.updateLastMessage(conversation.getId(), message.getId());
-        return toVO(messageMapper.selectById(message.getId()));
+        MessageVO messageVO = toVO(messageMapper.selectById(message.getId()));
+        pushAfterCommit(messageVO);
+        return messageVO;
     }
 
     /**
@@ -147,4 +153,21 @@ public class MessageService
         );
     }
 
+    /**
+     * 注册事务提交后的推送动作。
+     *
+     * @param messageVO 需要推送的消息
+     */
+    private void pushAfterCommit(MessageVO messageVO)
+    {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization()
+        {
+            @Override
+            public void afterCommit()
+            {
+                // 事务成功提交后再推送，确保客户端收到的实时消息一定已经持久化。
+                messagePushService.pushMessage(messageVO);
+            }
+        });
+    }
 }
