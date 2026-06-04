@@ -24,6 +24,15 @@ public interface AccountMapper
     Account selectByUserId(@Param("userId") Long userId);
 
     /**
+     * 更新用户头像文件名。
+     *
+     * @param userId 用户 ID
+     * @param avatar 头像文件名
+     * @return 影响行数
+     */
+    int updateAvatar(@Param("userId") Long userId, @Param("avatar") String avatar);
+
+    /**
      * 判断用户 ID 是否存在，保留给需要主动校验账号唯一性的业务使用。
      *
      * @param userId 用户 ID

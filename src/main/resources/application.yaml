@@ -66,3 +66,5 @@ mechat:
   snowflake:
     worker-id: 1
     datacenter-id: 1
+  file:
+    root-path: E:/IdeaProjects/MeChat/storage

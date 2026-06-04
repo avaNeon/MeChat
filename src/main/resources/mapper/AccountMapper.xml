@@ -15,6 +15,12 @@
         LIMIT 1
     </select>
 
+    <update id="updateAvatar">
+        UPDATE account
+        SET avatar = #{avatar}
+        WHERE user_id = #{userId}
+    </update>
+
     <select id="existsByUserId" resultType="boolean">
         SELECT COUNT(1) > 0
         FROM account
