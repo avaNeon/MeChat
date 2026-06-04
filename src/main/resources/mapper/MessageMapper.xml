@@ -36,4 +36,24 @@
           AND client_message_id = #{clientMessageId}
         LIMIT 1
     </select>
+
+    <select id="selectOfflineMessages" resultType="com.neon.mechat.entity.Message">
+        SELECT m.id,
+               m.conversation_id,
+               m.sender_id,
+               m.receiver_id,
+               m.client_message_id,
+               m.message_type,
+               m.content,
+               m.send_time
+        FROM conversation c
+                 INNER JOIN message m ON m.conversation_id = c.id
+        WHERE m.receiver_id = #{userId}
+          AND (
+            (c.user_low_id = #{userId} AND m.id > c.user_low_last_sync_message_id)
+                OR (c.user_high_id = #{userId} AND m.id > c.user_high_last_sync_message_id)
+            )
+        ORDER BY m.id ASC
+        LIMIT #{limit}
+    </select>
 </mapper>

@@ -32,4 +32,16 @@ public interface ConversationMapper
      * @return 影响行数
      */
     int updateLastMessage(@Param("conversationId") Long conversationId, @Param("messageId") Long messageId);
+
+    /**
+     * 更新指定用户在会话中的最后同步消息 ID。
+     *
+     * @param conversationId 会话 ID
+     * @param userId         用户 ID
+     * @param messageId      已同步到的消息 ID
+     * @return 影响行数
+     */
+    int updateUserLastSyncMessage(@Param("conversationId") Long conversationId,
+                                  @Param("userId") Long userId,
+                                  @Param("messageId") Long messageId);
 }

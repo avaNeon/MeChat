@@ -4,6 +4,8 @@ import com.neon.mechat.entity.Message;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface MessageMapper
 {
@@ -32,4 +34,13 @@ public interface MessageMapper
      */
     Message selectBySenderAndClientMessageId(@Param("senderId") Long senderId,
                                              @Param("clientMessageId") String clientMessageId);
+
+    /**
+     * 查询当前用户尚未同步的离线消息。
+     *
+     * @param userId 用户 ID
+     * @param limit  查询数量
+     * @return 离线消息列表
+     */
+    List<Message> selectOfflineMessages(@Param("userId") Long userId, @Param("limit") Integer limit);
 }
