@@ -13,16 +13,16 @@ import java.time.LocalDateTime;
 @Schema(description = "消息信息")
 public class MessageVO
 {
-    @Schema(description = "消息ID，自增主键", example = "1")
+    @Schema(description = "消息ID，自增主键")
     private Long id;
 
-    @Schema(description = "会话ID", example = "739093770475929602")
+    @Schema(description = "会话ID")
     private Long conversationId;
 
-    @Schema(description = "发送者用户ID", example = "739093770475929600")
+    @Schema(description = "发送者用户ID")
     private Long senderId;
 
-    @Schema(description = "接收者用户ID", example = "739093770475929601")
+    @Schema(description = "接收者用户ID")
     private Long receiverId;
 
     @Schema(description = "客户端生成的消息ID", example = "client-msg-001")

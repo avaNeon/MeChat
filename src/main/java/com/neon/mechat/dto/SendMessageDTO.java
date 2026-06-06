@@ -9,7 +9,7 @@ import lombok.Data;
 @Schema(description = "发送单聊消息参数")
 public class SendMessageDTO
 {
-    @Schema(description = "接收者用户ID", example = "739093770475929601")
+    @Schema(description = "接收者用户ID")
     @NotNull(message = "接收者用户ID不能为空")
     private Long receiverId;
 

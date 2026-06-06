@@ -50,7 +50,7 @@ public class MessageController
      */
     @Operation(summary = "同步离线消息", description = "按当前用户在会话中的最后同步消息ID拉取未同步消息。返回成功后，服务端会推进对应会话的同步游标。")
     @PostMapping("/offline-sync")
-    public ApiResponse<OfflineMessageSyncVO> syncOfflineMessages(@Parameter(description = "登录 token", example = "2f2f6a8d0c314f9c8d5f1f25f61c37c1")
+    public ApiResponse<OfflineMessageSyncVO> syncOfflineMessages(@Parameter(description = "登录 token")
                                                                  @RequestHeader(value = "token", required = false) String token,
                                                                  @Parameter(description = "本次最多返回消息数量，默认 50，最大 100", example = "50")
                                                                  @RequestParam(value = "limit", defaultValue = "50") Integer limit)
