@@ -46,12 +46,12 @@ public class AccountController
     }
 
     /**
-     * 用户登录，校验用户 ID 和密码后签发 token，并返回 token 与用户信息。
+     * 用户登录，校验昵称和密码后签发 token，并返回 token 与用户信息。
      *
-     * @param accountLoginDTO 登录参数，包含用户 ID 和密码
+     * @param accountLoginDTO 登录参数，包含昵称和密码
      * @return 登录 token 和用户信息
      */
-    @Operation(summary = "账号登录", description = "使用用户ID和密码登录。登录成功后返回 token，后续 HTTP 请求通过请求头 token 传递。")
+    @Operation(summary = "账号登录", description = "使用昵称和密码登录。登录成功后返回 token，后续 HTTP 请求通过请求头 token 传递。")
     @PostMapping("/login")
     public ApiResponse<AccountLoginVO> login(@Valid @RequestBody AccountLoginDTO accountLoginDTO)
     {
@@ -66,10 +66,24 @@ public class AccountController
      */
     @Operation(summary = "自动登录", description = "校验请求头 token 是否有效，并在 token 剩余有效期不超过配置阈值时自动续期。")
     @PostMapping("/auto-login")
-    public ApiResponse<AccountLoginVO> autoLogin(@Parameter(description = "登录 token", example = "2f2f6a8d0c314f9c8d5f1f25f61c37c1")
+    public ApiResponse<AccountLoginVO> autoLogin(@Parameter(description = "登录 token")
                                                  @RequestHeader(value = "token", required = false) String token)
     {
         return ApiResponse.success(accountService.autoLogin(token));
+    }
+
+    /**
+     * 获取当前登录用户信息。
+     *
+     * @param token 登录 token
+     * @return 当前用户信息
+     */
+    @Operation(summary = "获取当前用户信息", description = "根据请求头 token 返回当前登录用户基础信息。")
+    @GetMapping("/me")
+    public ApiResponse<AccountUserVO> me(@Parameter(description = "登录 token")
+                                         @RequestHeader(value = "token", required = false) String token)
+    {
+        return ApiResponse.success(accountService.getCurrentUser(token));
     }
 
     /**
@@ -80,7 +94,7 @@ public class AccountController
      */
     @Operation(summary = "上传头像", description = "头像先保存到 tmp 目录，账号头像字段更新成功后再移动到 img 目录。")
     @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<Void> uploadAvatar(@Parameter(description = "登录 token", example = "2f2f6a8d0c314f9c8d5f1f25f61c37c1")
+    public ApiResponse<Void> uploadAvatar(@Parameter(description = "登录 token")
                                           @RequestHeader(value = "token", required = false) String token,
                                           @Parameter(description = "头像文件，支持 jpg/jpeg/png/gif/webp")
                                           @RequestPart("avatarFile") MultipartFile avatarFile)
@@ -97,7 +111,7 @@ public class AccountController
      */
     @Operation(summary = "下载头像", description = "客户端只传用户ID，服务端根据账号头像字段读取 img 目录文件，tmp 目录和任意文件名都不对外暴露。")
     @GetMapping("/{userId}/avatar")
-    public ResponseEntity<Resource> downloadAvatar(@Parameter(description = "用户ID", example = "739093770475929600")
+    public ResponseEntity<Resource> downloadAvatar(@Parameter(description = "用户ID")
                                                    @PathVariable Long userId)
     {
         return ResponseEntity.ok()

@@ -8,11 +8,11 @@ import lombok.Data;
 @Schema(description = "账号注册参数")
 public class AccountRegisterDTO
 {
-    @Schema(description = "昵称", example = "neon")
+    @Schema(description = "昵称")
     @NotBlank(message = "昵称不能为空")
     private String nickname;
 
-    @Schema(description = "密码", example = "123456")
+    @Schema(description = "密码")
     @NotBlank(message = "密码不能为空")
     private String password;
 }

@@ -13,6 +13,7 @@ import com.neon.mechat.support.SnowflakeIdGenerator;
 import com.neon.mechat.vo.AccountLoginVO;
 import com.neon.mechat.vo.AccountUserVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,11 @@ public class AccountService
     @Transactional
     public AccountUserVO register(AccountRegisterDTO accountRegisterDTO)
     {
+        if (accountMapper.existsByNickname(accountRegisterDTO.getNickname()))
+        {
+            throw new BusinessException(1004, "昵称已存在");
+        }
+
         // userId 由服务端生成，避免客户端手动指定账号 ID。
         Long userId = snowflakeIdGenerator.nextId();
 
@@ -53,7 +59,14 @@ public class AccountService
                 // 密码只保存 BCrypt 哈希值，不保存明文。
                 .setPassword(passwordEncoder.encode(accountRegisterDTO.getPassword()));
 
-        accountMapper.insert(account);
+        try
+        {
+            accountMapper.insert(account);
+        }
+        catch (DuplicateKeyException exception)
+        {
+            throw new BusinessException(1004, "昵称已存在");
+        }
         return toUserVO(account);
     }
 
@@ -65,10 +78,10 @@ public class AccountService
      */
     public AccountLoginVO login(AccountLoginDTO accountLoginDTO)
     {
-        Account account = accountMapper.selectByUserId(accountLoginDTO.getUserId());
+        Account account = accountMapper.selectByNickname(accountLoginDTO.getNickname());
         if (account == null || !passwordEncoder.matches(accountLoginDTO.getPassword(), account.getPassword()))
         {
-            throw new BusinessException(1002, "用户ID或密码错误");
+            throw new BusinessException(1002, "昵称或密码错误");
         }
 
         String token = UUID.randomUUID().toString().replace("-", "");
@@ -108,6 +121,23 @@ public class AccountService
         }
 
         return new AccountLoginVO(token, toUserVO(account));
+    }
+
+    /**
+     * 获取当前登录用户信息。
+     *
+     * @param token 登录 token
+     * @return 当前用户信息
+     */
+    public AccountUserVO getCurrentUser(String token)
+    {
+        Long userId = authenticate(token);
+        Account account = accountMapper.selectByUserId(userId);
+        if (account == null)
+        {
+            throw new BusinessException(401, "登录已失效");
+        }
+        return toUserVO(account);
     }
 
     /**

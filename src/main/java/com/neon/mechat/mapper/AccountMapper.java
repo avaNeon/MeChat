@@ -24,6 +24,14 @@ public interface AccountMapper
     Account selectByUserId(@Param("userId") Long userId);
 
     /**
+     * 根据昵称查询账号，用于登录校验。
+     *
+     * @param nickname 昵称
+     * @return 账号实体，不存在时返回 null
+     */
+    Account selectByNickname(@Param("nickname") String nickname);
+
+    /**
      * 更新用户头像文件名。
      *
      * @param userId 用户 ID
@@ -39,4 +47,12 @@ public interface AccountMapper
      * @return true 表示已存在
      */
     boolean existsByUserId(@Param("userId") Long userId);
+
+    /**
+     * 判断昵称是否存在，用于注册前校验昵称唯一性。
+     *
+     * @param nickname 昵称
+     * @return true 表示已存在
+     */
+    boolean existsByNickname(@Param("nickname") String nickname);
 }

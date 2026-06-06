@@ -15,6 +15,13 @@
         LIMIT 1
     </select>
 
+    <select id="selectByNickname" resultType="com.neon.mechat.entity.Account">
+        SELECT user_id, nickname, password, avatar, create_time AS created_at
+        FROM account
+        WHERE nickname = #{nickname}
+        LIMIT 1
+    </select>
+
     <update id="updateAvatar">
         UPDATE account
         SET avatar = #{avatar}
@@ -25,5 +32,11 @@
         SELECT COUNT(1) > 0
         FROM account
         WHERE user_id = #{userId}
+    </select>
+
+    <select id="existsByNickname" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM account
+        WHERE nickname = #{nickname}
     </select>
 </mapper>
