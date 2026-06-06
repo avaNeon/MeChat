@@ -38,6 +38,7 @@ public class MessageService
     private final MessageMapper messageMapper;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
     private final MessagePushService messagePushService;
+    private final FriendRelationService friendRelationService;
 
     /**
      * 发送单聊消息。
@@ -59,6 +60,10 @@ public class MessageService
         if (receiver == null)
         {
             throw new BusinessException(2002, "接收者不存在");
+        }
+        if (!friendRelationService.areFriends(senderId, sendMessageDTO.getReceiverId()))
+        {
+            throw new BusinessException(2003, "只能给好友发送消息");
         }
 
         // 客户端弱网重试时，使用 senderId + clientMessageId 保证消息不会重复入库。
