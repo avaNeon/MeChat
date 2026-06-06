@@ -43,4 +43,28 @@ public interface MessageMapper
      * @return 离线消息列表
      */
     List<Message> selectOfflineMessages(@Param("userId") Long userId, @Param("limit") Integer limit);
+
+    /**
+     * 查询会话历史消息，按消息 ID 倒序返回。
+     *
+     * @param conversationId 会话 ID
+     * @param beforeMessageId 只查询小于该 ID 的消息；为空时从最新消息开始
+     * @param limit 查询数量
+     * @return 消息列表
+     */
+    List<Message> selectConversationMessages(@Param("conversationId") Long conversationId,
+                                             @Param("beforeMessageId") Long beforeMessageId,
+                                             @Param("limit") Integer limit);
+
+    /**
+     * 统计当前用户在指定会话中的未读消息数量。
+     *
+     * @param conversationId 会话 ID
+     * @param userId 当前用户 ID
+     * @param lastSyncMessageId 当前用户已同步到的消息 ID
+     * @return 未读消息数量
+     */
+    int countUnreadMessages(@Param("conversationId") Long conversationId,
+                            @Param("userId") Long userId,
+                            @Param("lastSyncMessageId") Long lastSyncMessageId);
 }

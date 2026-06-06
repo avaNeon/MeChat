@@ -24,6 +24,39 @@
         LIMIT 1
     </select>
 
+    <select id="selectById" resultType="com.neon.mechat.entity.Conversation">
+        SELECT id,
+               user_low_id,
+               user_high_id,
+               user_low_last_sync_message_id,
+               user_high_last_sync_message_id,
+               last_message_id,
+               last_message_time,
+               create_time,
+               update_time
+        FROM conversation
+        WHERE id = #{id}
+        LIMIT 1
+    </select>
+
+    <select id="selectByUserId" resultType="com.neon.mechat.entity.Conversation">
+        SELECT id,
+               user_low_id,
+               user_high_id,
+               user_low_last_sync_message_id,
+               user_high_last_sync_message_id,
+               last_message_id,
+               last_message_time,
+               create_time,
+               update_time
+        FROM conversation
+        WHERE user_low_id = #{userId}
+           OR user_high_id = #{userId}
+        ORDER BY COALESCE(last_message_time, create_time) DESC,
+                 id DESC
+        LIMIT #{limit}
+    </select>
+
     <update id="updateLastMessage">
         UPDATE conversation
         SET last_message_id = #{messageId},

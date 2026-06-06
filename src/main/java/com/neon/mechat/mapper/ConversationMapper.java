@@ -4,6 +4,8 @@ import com.neon.mechat.entity.Conversation;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface ConversationMapper
 {
@@ -23,6 +25,23 @@ public interface ConversationMapper
      * @return 会话实体，不存在时返回 null
      */
     Conversation selectByUsers(@Param("userLowId") Long userLowId, @Param("userHighId") Long userHighId);
+
+    /**
+     * 根据会话 ID 查询会话。
+     *
+     * @param id 会话 ID
+     * @return 会话实体，不存在时返回 null
+     */
+    Conversation selectById(@Param("id") Long id);
+
+    /**
+     * 查询当前用户参与的会话列表。
+     *
+     * @param userId 当前用户 ID
+     * @param limit  查询数量
+     * @return 会话列表
+     */
+    List<Conversation> selectByUserId(@Param("userId") Long userId, @Param("limit") Integer limit);
 
     /**
      * 更新会话的最后一条消息，供会话列表排序和后续同步入口使用。

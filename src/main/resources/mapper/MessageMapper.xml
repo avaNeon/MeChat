@@ -56,4 +56,30 @@
         ORDER BY m.id ASC
         LIMIT #{limit}
     </select>
+
+    <select id="selectConversationMessages" resultType="com.neon.mechat.entity.Message">
+        SELECT id,
+               conversation_id,
+               sender_id,
+               receiver_id,
+               client_message_id,
+               message_type,
+               content,
+               send_time
+        FROM message
+        WHERE conversation_id = #{conversationId}
+        <if test="beforeMessageId != null">
+          AND id &lt; #{beforeMessageId}
+        </if>
+        ORDER BY id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="countUnreadMessages" resultType="int">
+        SELECT COUNT(1)
+        FROM message
+        WHERE conversation_id = #{conversationId}
+          AND receiver_id = #{userId}
+          AND id &gt; #{lastSyncMessageId}
+    </select>
 </mapper>
