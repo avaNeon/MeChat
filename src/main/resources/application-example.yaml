@@ -1,0 +1,75 @@
+# 服务运行端口
+server:
+  port: 8080
+  # 需要局域网访问时可打开：
+  # address: 0.0.0.0
+
+spring:
+  application:
+    name: MeChat
+  jackson:
+    time-zone: Asia/Shanghai
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 1000MB
+  datasource:
+    # MySQL IP、端口号、数据库名配置
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:MeChat}?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:change-me}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: HikariCPDatasource
+      minimum-idle: 5
+      idle-timeout: 180000
+      maximum-pool-size: 10
+      auto-commit: true
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+  data:
+    redis:
+      # Redis IP、端口号、密码配置
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      lettuce:
+        pool:
+          max-active: 100
+          max-wait: 2000ms
+          max-idle: 50
+          min-idle: 10
+
+mybatis:
+  mapper-locations: classpath:mapper/**.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.neon.mechat.controller
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+mechat:
+  account:
+    login-token-ttl: ${MECHAT_LOGIN_TOKEN_TTL:7d}
+    login-token-renew-threshold: ${MECHAT_LOGIN_TOKEN_RENEW_THRESHOLD:1d}
+  snowflake:
+    worker-id: ${MECHAT_SNOWFLAKE_WORKER_ID:1}
+    datacenter-id: ${MECHAT_SNOWFLAKE_DATACENTER_ID:1}
+  file:
+    # 文件存储根目录，生产环境建议使用绝对路径。
+    root-path: ${MECHAT_FILE_ROOT_PATH:./storage}
