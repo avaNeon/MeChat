@@ -25,7 +25,6 @@ public class FriendRelationService
 {
     private static final int REQUEST_STATUS_PENDING = 0;
     private static final int REQUEST_STATUS_ACCEPTED = 1;
-    private static final int REQUEST_STATUS_REJECTED = 2;
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
@@ -89,7 +88,7 @@ public class FriendRelationService
     {
         Long currentUserId = authenticate(token);
         getCurrentAccount(currentUserId);
-        return friendRequestMapper.selectByAddresseeAndStatus(currentUserId, REQUEST_STATUS_PENDING).stream()
+        return friendRequestMapper.selectPendingByUser(currentUserId, REQUEST_STATUS_PENDING).stream()
                 .map(this::toFriendRequestVO)
                 .toList();
     }
@@ -141,26 +140,6 @@ public class FriendRelationService
                 .setInitiatorId(friendRequest.getRequesterId());
         friendRelationMapper.insertIgnore(friendRelation);
         return toUserVO(requester);
-    }
-
-    /**
-     * 拒绝好友申请。
-     *
-     * @param token     登录 token
-     * @param requestId 好友申请 ID
-     */
-    @Transactional
-    public void rejectRequest(String token, Long requestId)
-    {
-        Long currentUserId = authenticate(token);
-        getCurrentAccount(currentUserId);
-        getPendingRequestForCurrentUser(requestId, currentUserId);
-
-        int updatedRows = friendRequestMapper.updateStatus(requestId, REQUEST_STATUS_REJECTED, REQUEST_STATUS_PENDING);
-        if (updatedRows == 0)
-        {
-            throw new BusinessException(4006, "好友申请已处理");
-        }
     }
 
     /**

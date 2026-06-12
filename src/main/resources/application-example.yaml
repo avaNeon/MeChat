@@ -59,7 +59,7 @@ springdoc:
       packages-to-scan: com.neon.mechat.controller
 
 knife4j:
-  enable: true
+  enable: ${KNIFE4J_ENABLE:true}
   setting:
     language: zh_cn
 
@@ -67,6 +67,9 @@ mechat:
   account:
     login-token-ttl: ${MECHAT_LOGIN_TOKEN_TTL:7d}
     login-token-renew-threshold: ${MECHAT_LOGIN_TOKEN_RENEW_THRESHOLD:1d}
+  websocket:
+    # 生产环境改为具体域名，多个域名用逗号分隔，如：https://chat.example.com,https://app.example.com
+    allowed-origins: ${MECHAT_WS_ALLOWED_ORIGINS:*}
   snowflake:
     worker-id: ${MECHAT_SNOWFLAKE_WORKER_ID:1}
     datacenter-id: ${MECHAT_SNOWFLAKE_DATACENTER_ID:1}

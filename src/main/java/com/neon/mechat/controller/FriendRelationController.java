@@ -47,14 +47,14 @@ public class FriendRelationController
      */
     @Operation(summary = "查询好友列表", description = "返回当前用户已经建立好友关系的用户列表。")
     @GetMapping
-    public ApiResponse<List<AccountUserVO>> listFriends(@Parameter(description = "登录 token")
-                                                        @RequestHeader(value = "token", required = false) String token)
+    public ApiResponse <List <AccountUserVO>> listFriends(
+            @Parameter(description = "登录 token") @RequestHeader(value = "token", required = false) String token)
     {
         return ApiResponse.success(friendRelationService.listFriends(token));
     }
 
     /**
-     * 查询当前用户收到的待处理好友申请。
+     * 查询当前用户收到/发送的待处理好友申请。
      *
      * @param token 登录 token
      * @return 待处理好友申请列表
@@ -83,20 +83,4 @@ public class FriendRelationController
         return ApiResponse.success(friendRelationService.acceptRequest(token, requestId));
     }
 
-    /**
-     * 拒绝好友申请。
-     *
-     * @param token     登录 token
-     * @param requestId 好友申请 ID
-     * @return 空响应
-     */
-    @Operation(summary = "拒绝好友申请", description = "只有申请接收人可以拒绝。")
-    @PostMapping("/requests/{requestId}/reject")
-    public ApiResponse <Void> rejectRequest(
-            @Parameter(description = "登录 token") @RequestHeader(value = "token", required = false) String token,
-            @Parameter(description = "好友申请ID") @PathVariable Long requestId)
-    {
-        friendRelationService.rejectRequest(token, requestId);
-        return ApiResponse.success(null);
-    }
 }

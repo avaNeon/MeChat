@@ -36,15 +36,6 @@ public interface MessageMapper
                                              @Param("clientMessageId") String clientMessageId);
 
     /**
-     * 查询当前用户尚未同步的离线消息。
-     *
-     * @param userId 用户 ID
-     * @param limit  查询数量
-     * @return 离线消息列表
-     */
-    List<Message> selectOfflineMessages(@Param("userId") Long userId, @Param("limit") Integer limit);
-
-    /**
      * 查询会话历史消息，按消息 ID 倒序返回。
      *
      * @param conversationId 会话 ID

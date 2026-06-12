@@ -35,14 +35,14 @@ public interface FriendRequestMapper
     FriendRequest selectByIdForUpdate(@Param("id") Long id);
 
     /**
-     * 查询当前用户收到的待处理好友申请。
+     * 查询与当前用户相关的待处理好友申请（发出的 + 收到的）。
      *
-     * @param addresseeId 接收申请的用户 ID
-     * @param status      申请状态
+     * @param userId 当前用户 ID
+     * @param status 申请状态
      * @return 好友申请列表
      */
-    List<FriendRequest> selectByAddresseeAndStatus(@Param("addresseeId") Long addresseeId,
-                                                   @Param("status") Integer status);
+    List<FriendRequest> selectPendingByUser(@Param("userId") Long userId,
+                                            @Param("status") Integer status);
 
     /**
      * 更新好友申请状态。

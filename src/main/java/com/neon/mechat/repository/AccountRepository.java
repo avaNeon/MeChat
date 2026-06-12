@@ -6,6 +6,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Repository
 @RequiredArgsConstructor
@@ -72,5 +75,32 @@ public class AccountRepository
     public void deleteToken(String token)
     {
         redisTemplate.delete(RedisKeys.accountToken(token));
+    }
+
+    /**
+     * 查询用户当日已上传头像字节数。
+     *
+     * @param userId 用户 ID
+     * @return 已上传字节数
+     */
+    public long getDailyUploadBytes(Long userId)
+    {
+        Object value = redisTemplate.opsForValue().get(RedisKeys.avatarUploadQuota(userId, LocalDate.now()));
+        return value == null ? 0L : Long.parseLong(value.toString());
+    }
+
+    /**
+     * 累加用户当日头像上传字节数，并设置 key 在当天结束时自动过期。
+     *
+     * @param userId 用户 ID
+     * @param bytes  本次上传字节数
+     */
+    public void addDailyUploadBytes(Long userId, long bytes)
+    {
+        String key = RedisKeys.avatarUploadQuota(userId, LocalDate.now());
+        redisTemplate.opsForValue().increment(key, bytes);
+        long secondsUntilMidnight = LocalDateTime.now().until(
+                LocalDate.now().plusDays(1).atStartOfDay(), ChronoUnit.SECONDS);
+        redisTemplate.expire(key, Duration.ofSeconds(secondsUntilMidnight));
     }
 }

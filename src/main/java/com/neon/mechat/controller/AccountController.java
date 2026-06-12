@@ -73,20 +73,6 @@ public class AccountController
     }
 
     /**
-     * 获取当前登录用户信息。
-     *
-     * @param token 登录 token
-     * @return 当前用户信息
-     */
-    @Operation(summary = "获取当前用户信息", description = "根据请求头 token 返回当前登录用户基础信息。")
-    @GetMapping("/me")
-    public ApiResponse<AccountUserVO> me(@Parameter(description = "登录 token")
-                                         @RequestHeader(value = "token", required = false) String token)
-    {
-        return ApiResponse.success(accountService.getCurrentUser(token));
-    }
-
-    /**
      * 上传当前用户头像。
      *
      * @param token 登录 token

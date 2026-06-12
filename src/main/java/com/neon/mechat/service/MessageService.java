@@ -11,7 +11,6 @@ import com.neon.mechat.mapper.MessageMapper;
 import com.neon.mechat.repository.AccountRepository;
 import com.neon.mechat.support.SnowflakeIdGenerator;
 import com.neon.mechat.vo.MessageVO;
-import com.neon.mechat.vo.OfflineMessageSyncVO;
 import com.neon.mechat.websocket.MessagePushService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
@@ -21,17 +20,10 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class MessageService
 {
-    private static final int DEFAULT_SYNC_LIMIT = 50;
-    private static final int MAX_SYNC_LIMIT = 100;
-
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final ConversationMapper conversationMapper;
@@ -40,13 +32,6 @@ public class MessageService
     private final MessagePushService messagePushService;
     private final FriendRelationService friendRelationService;
 
-    /**
-     * 发送单聊消息。
-     *
-     * @param token 登录 token，用于识别发送者
-     * @param sendMessageDTO 发送消息参数
-     * @return 已持久化的消息信息
-     */
     @Transactional
     public MessageVO sendMessage(String token, SendMessageDTO sendMessageDTO)
     {
@@ -66,7 +51,6 @@ public class MessageService
             throw new BusinessException(2003, "只能给好友发送消息");
         }
 
-        // 客户端弱网重试时，使用 senderId + clientMessageId 保证消息不会重复入库。
         Message existedMessage = messageMapper.selectBySenderAndClientMessageId(senderId, sendMessageDTO.getClientMessageId());
         if (existedMessage != null)
         {
@@ -97,38 +81,8 @@ public class MessageService
         return messageVO;
     }
 
-    /**
-     * 同步当前用户尚未拉取的离线消息。
-     *
-     * @param token 登录 token，用于识别同步用户
-     * @param limit 本次最多返回的消息数量
-     * @return 离线同步结果
-     */
-    @Transactional
-    public OfflineMessageSyncVO syncOfflineMessages(String token, Integer limit)
-    {
-        Long userId = authenticate(token);
-        int actualLimit = normalizeSyncLimit(limit);
-
-        // 多查一条只用于判断是否还有下一页，不能推进这条额外消息的同步游标。
-        List<Message> messages = messageMapper.selectOfflineMessages(userId, actualLimit + 1);
-        boolean hasMore = messages.size() > actualLimit;
-        List<Message> returnedMessages = hasMore ? messages.subList(0, actualLimit) : messages;
-
-        updateLastSyncMessages(userId, returnedMessages);
-        return new OfflineMessageSyncVO(toMessageVOList(returnedMessages), hasMore);
-    }
-
-    /**
-     * 获取或创建两名用户之间的单聊会话。
-     *
-     * @param senderId 发送者用户 ID
-     * @param receiverId 接收者用户 ID
-     * @return 单聊会话
-     */
     private Conversation getOrCreateConversation(Long senderId, Long receiverId)
     {
-        // 固定较小 ID 在前，避免 A-B 和 B-A 被创建成两条会话。
         Long userLowId = Math.min(senderId, receiverId);
         Long userHighId = Math.max(senderId, receiverId);
 
@@ -146,15 +100,8 @@ public class MessageService
         return conversationMapper.selectByUsers(userLowId, userHighId);
     }
 
-    /**
-     * 根据 token 校验登录态并返回当前用户 ID。
-     *
-     * @param token 登录 token
-     * @return 当前登录用户 ID
-     */
     private Long authenticate(String token)
     {
-        // 发送者只能从服务端登录态解析，不能相信客户端传入的 senderId。
         if (!StringUtils.hasText(token))
         {
             throw new BusinessException(401, "未登录");
@@ -168,48 +115,6 @@ public class MessageService
         return userId;
     }
 
-    /**
-     * 标准化离线同步数量。
-     *
-     * @param limit 客户端传入的同步数量
-     * @return 经过默认值和最大值限制后的同步数量
-     */
-    private int normalizeSyncLimit(Integer limit)
-    {
-        if (limit == null || limit <= 0)
-        {
-            return DEFAULT_SYNC_LIMIT;
-        }
-        return Math.min(limit, MAX_SYNC_LIMIT);
-    }
-
-    /**
-     * 更新当前用户在每个会话中的最后同步消息 ID。
-     *
-     * @param userId 用户 ID
-     * @param messages 本次实际返回给客户端的消息
-     */
-    private void updateLastSyncMessages(Long userId, List<Message> messages)
-    {
-        Map<Long, Long> maxMessageIdByConversation = messages.stream()
-                .collect(Collectors.toMap(
-                        Message::getConversationId,
-                        Message::getId,
-                        Math::max
-                ));
-
-        for (Map.Entry<Long, Long> entry : maxMessageIdByConversation.entrySet())
-        {
-            conversationMapper.updateUserLastSyncMessage(entry.getKey(), userId, entry.getValue());
-        }
-    }
-
-    /**
-     * 将消息实体转换成消息 VO。
-     *
-     * @param message 消息实体
-     * @return 消息 VO
-     */
     private MessageVO toVO(Message message)
     {
         return new MessageVO(
@@ -224,24 +129,6 @@ public class MessageService
         );
     }
 
-    /**
-     * 批量转换消息实体列表。
-     *
-     * @param messages 消息实体列表
-     * @return 消息 VO 列表
-     */
-    private List<MessageVO> toMessageVOList(List<Message> messages)
-    {
-        return messages.stream()
-                .map(this::toVO)
-                .toList();
-    }
-
-    /**
-     * 注册事务提交后的推送动作。
-     *
-     * @param messageVO 需要推送的消息
-     */
     private void pushAfterCommit(MessageVO messageVO)
     {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization()
@@ -249,7 +136,6 @@ public class MessageService
             @Override
             public void afterCommit()
             {
-                // 事务成功提交后再推送，确保客户端收到的实时消息一定已经持久化。
                 messagePushService.pushMessage(messageVO);
             }
         });

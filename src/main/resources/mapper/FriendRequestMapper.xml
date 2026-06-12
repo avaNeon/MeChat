@@ -49,7 +49,7 @@
         FOR UPDATE
     </select>
 
-    <select id="selectByAddresseeAndStatus" resultType="com.neon.mechat.entity.FriendRequest">
+    <select id="selectPendingByUser" resultType="com.neon.mechat.entity.FriendRequest">
         SELECT id,
                requester_id,
                addressee_id,
@@ -61,7 +61,7 @@
                create_time,
                update_time
         FROM friend_request
-        WHERE addressee_id = #{addresseeId}
+        WHERE (requester_id = #{userId} OR addressee_id = #{userId})
           AND status = #{status}
         ORDER BY create_time DESC
     </select>

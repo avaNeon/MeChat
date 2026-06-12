@@ -3,6 +3,7 @@ package com.neon.mechat.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -23,5 +24,6 @@ public class SendMessageDTO
 
     @Schema(description = "消息内容", example = "你好")
     @NotBlank(message = "消息内容不能为空")
+    @Size(max = 5000, message = "消息内容不能超过5000个字符")
     private String content;
 }

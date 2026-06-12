@@ -90,20 +90,24 @@ public class MessageWebSocketHandler extends TextWebSocketHandler
     }
 
     /**
-     * 从 WebSocket 连接中提取 token。
+     * 从 WebSocket 连接中提取 token。优先级：握手拦截器注入的 attributes > 握手请求头 > URI 查询参数。
      *
      * @param session WebSocket 连接
      * @return token，不存在时返回 null
      */
     private String getToken(WebSocketSession session)
     {
-        String token = getTokenFromQuery(session.getUri());
-        if (StringUtils.hasText(token))
+        Object attrToken = session.getAttributes().get(TOKEN_KEY);
+        if (attrToken instanceof String token && StringUtils.hasText(token))
         {
             return token;
         }
-        // 浏览器无法方便设置握手头，因此 query token 优先，header token 作为兼容入口。
-        return session.getHandshakeHeaders().getFirst(TOKEN_KEY);
+        String headerToken = session.getHandshakeHeaders().getFirst(TOKEN_KEY);
+        if (StringUtils.hasText(headerToken))
+        {
+            return headerToken;
+        }
+        return getTokenFromQuery(session.getUri());
     }
 
     /**

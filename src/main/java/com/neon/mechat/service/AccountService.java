@@ -124,23 +124,6 @@ public class AccountService
     }
 
     /**
-     * 获取当前登录用户信息。
-     *
-     * @param token 登录 token
-     * @return 当前用户信息
-     */
-    public AccountUserVO getCurrentUser(String token)
-    {
-        Long userId = authenticate(token);
-        Account account = accountMapper.selectByUserId(userId);
-        if (account == null)
-        {
-            throw new BusinessException(401, "登录已失效");
-        }
-        return toUserVO(account);
-    }
-
-    /**
      * 上传当前用户头像。
      *
      * @param token 登录 token
@@ -156,8 +139,16 @@ public class AccountService
             throw new BusinessException(401, "登录已失效");
         }
 
+        long fileSize = avatarFile.getSize();
+        long dailyUsed = accountRepository.getDailyUploadBytes(userId);
+        if (dailyUsed + fileSize > accountProperties.getAvatarUploadDailyQuotaBytes())
+        {
+            throw new BusinessException(3004, "头像上传超过每日限额");
+        }
+
         AvatarFilePlan avatarFilePlan = avatarFileRepository.saveToTmp(userId, avatarFile);
         accountMapper.updateAvatar(userId, avatarFilePlan.getFileName());
+        accountRepository.addDailyUploadBytes(userId, fileSize);
         registerAvatarFileTransactionSynchronization(avatarFilePlan, account.getAvatar());
     }
 
