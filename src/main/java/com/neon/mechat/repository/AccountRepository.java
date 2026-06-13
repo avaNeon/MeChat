@@ -78,26 +78,26 @@ public class AccountRepository
     }
 
     /**
-     * 查询用户当日已上传头像字节数。
+     * 查询用户当日已上传字节数。
      *
      * @param userId 用户 ID
      * @return 已上传字节数
      */
     public long getDailyUploadBytes(Long userId)
     {
-        Object value = redisTemplate.opsForValue().get(RedisKeys.avatarUploadQuota(userId, LocalDate.now()));
+        Object value = redisTemplate.opsForValue().get(RedisKeys.uploadQuota(userId, LocalDate.now()));
         return value == null ? 0L : Long.parseLong(value.toString());
     }
 
     /**
-     * 累加用户当日头像上传字节数，并设置 key 在当天结束时自动过期。
+     * 累加用户当日上传字节数，并设置 key 在当天结束时自动过期。
      *
      * @param userId 用户 ID
      * @param bytes  本次上传字节数
      */
     public void addDailyUploadBytes(Long userId, long bytes)
     {
-        String key = RedisKeys.avatarUploadQuota(userId, LocalDate.now());
+        String key = RedisKeys.uploadQuota(userId, LocalDate.now());
         redisTemplate.opsForValue().increment(key, bytes);
         long secondsUntilMidnight = LocalDateTime.now().until(
                 LocalDate.now().plusDays(1).atStartOfDay(), ChronoUnit.SECONDS);
