@@ -10,8 +10,10 @@ import java.time.LocalDateTime;
 public class Conversation
 {
     private Long id;
+    private Integer type;
     private Long userLowId;
     private Long userHighId;
+    private Long groupId;
     private Long userLowLastSyncMessageId;
     private Long userHighLastSyncMessageId;
     private Long lastMessageId;

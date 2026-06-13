@@ -141,9 +141,9 @@ public class AccountService
 
         long fileSize = avatarFile.getSize();
         long dailyUsed = accountRepository.getDailyUploadBytes(userId);
-        if (dailyUsed + fileSize > accountProperties.getAvatarUploadDailyQuotaBytes())
+        if (dailyUsed + fileSize > accountProperties.getUploadDailyQuotaBytes())
         {
-            throw new BusinessException(3004, "头像上传超过每日限额");
+            throw new BusinessException(3004, "上传超过每日限额");
         }
 
         AvatarFilePlan avatarFilePlan = avatarFileRepository.saveToTmp(userId, avatarFile);

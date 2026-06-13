@@ -23,7 +23,10 @@ public class SendMessageDTO
     private Integer messageType;
 
     @Schema(description = "消息内容", example = "你好")
-    @NotBlank(message = "消息内容不能为空")
     @Size(max = 5000, message = "消息内容不能超过5000个字符")
     private String content;
+
+    @Schema(description = "聊天图片路径，通过上传图片接口获取")
+    @Size(max = 512, message = "图片路径不能超过512个字符")
+    private String imgPath;
 }

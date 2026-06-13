@@ -19,6 +19,9 @@ public class MessageVO
     @Schema(description = "会话ID")
     private Long conversationId;
 
+    @Schema(description = "群聊ID，群聊消息时有值")
+    private Long groupId;
+
     @Schema(description = "发送者用户ID")
     private Long senderId;
 
@@ -33,6 +36,9 @@ public class MessageVO
 
     @Schema(description = "消息内容", example = "你好")
     private String content;
+
+    @Schema(description = "聊天图片路径，相对于 storage 目录", example = "file/msg/123_abc.png")
+    private String imgPath;
 
     @Schema(description = "发送时间", example = "2026-06-04T09:51:00")
     private LocalDateTime sendTime;

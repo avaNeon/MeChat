@@ -13,5 +13,5 @@ public class AccountProperties
 {
     private Duration loginTokenTtl = Duration.ofDays(7);
     private Duration loginTokenRenewThreshold = Duration.ofDays(1);
-    private long avatarUploadDailyQuotaBytes = 5 * 1024 * 1024;
+    private long uploadDailyQuotaBytes = 30 * 1024 * 1024;
 }
