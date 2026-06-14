@@ -156,9 +156,26 @@ public class GroupChatService
         int remainingCount = groupChatMapper.selectMemberCount(groupId);
         if (remainingCount == 0)
         {
-            conversationMapper.deleteByGroupId(groupId);
             groupChatMapper.deleteGroup(groupId);
+            conversationMapper.deleteByGroupId(groupId);
         }
+    }
+
+    @Transactional
+    public void disbandGroup(String token, Long groupId)
+    {
+        Long currentUserId = authenticate(token);
+        getCurrentAccount(currentUserId);
+
+        GroupChat groupChat = getGroupChat(groupId);
+        if (!groupChat.getOwnerId().equals(currentUserId))
+        {
+            throw new BusinessException(4104, "只有群主才能解散群聊");
+        }
+
+        groupChatMapper.deleteAllMembers(groupId);
+        groupChatMapper.deleteGroup(groupId);
+        conversationMapper.deleteByGroupId(groupId);
     }
 
     public List<GroupMemberVO> listMembers(String token, Long groupId)

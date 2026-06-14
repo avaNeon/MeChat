@@ -6,6 +6,7 @@ import com.neon.mechat.entity.Account;
 import com.neon.mechat.entity.FriendRequest;
 import com.neon.mechat.entity.FriendRelation;
 import com.neon.mechat.mapper.AccountMapper;
+import com.neon.mechat.mapper.ConversationMapper;
 import com.neon.mechat.mapper.FriendRequestMapper;
 import com.neon.mechat.mapper.FriendRelationMapper;
 import com.neon.mechat.repository.AccountRepository;
@@ -30,6 +31,7 @@ public class FriendRelationService
     private final AccountMapper accountMapper;
     private final FriendRequestMapper friendRequestMapper;
     private final FriendRelationMapper friendRelationMapper;
+    private final ConversationMapper conversationMapper;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
 
     /**
@@ -140,6 +142,33 @@ public class FriendRelationService
                 .setInitiatorId(friendRequest.getRequesterId());
         friendRelationMapper.insertIgnore(friendRelation);
         return toUserVO(requester);
+    }
+
+    /**
+     * 删除好友关系，同时删除对应的单聊会话，确保重新添加好友时不会复用旧会话。
+     *
+     * @param token  登录 token
+     * @param userId 要删除的好友用户 ID
+     */
+    @Transactional
+    public void deleteFriend(String token, Long userId)
+    {
+        Long currentUserId = authenticate(token);
+        getCurrentAccount(currentUserId);
+        if (currentUserId.equals(userId))
+        {
+            throw new BusinessException(4001, "不能删除自己");
+        }
+
+        Long userLowId = Math.min(currentUserId, userId);
+        Long userHighId = Math.max(currentUserId, userId);
+        if (friendRelationMapper.selectByUsers(userLowId, userHighId) == null)
+        {
+            throw new BusinessException(4008, "不是好友关系");
+        }
+
+        friendRelationMapper.deleteByUsers(userLowId, userHighId);
+        conversationMapper.deleteByUsers(userLowId, userHighId);
     }
 
     /**

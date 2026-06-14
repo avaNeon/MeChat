@@ -61,6 +61,16 @@ public class GroupChatController
         return ApiResponse.success(null);
     }
 
+    @Operation(summary = "解散群聊", description = "群主解散群聊，所有成员被移除，群聊被删除。会话记录保留但不再可用。")
+    @DeleteMapping("/{groupId}")
+    public ApiResponse<Void> disbandGroup(
+            @Parameter(description = "登录 token") @RequestHeader(value = "token", required = false) String token,
+            @Parameter(description = "群聊ID") @PathVariable Long groupId)
+    {
+        groupChatService.disbandGroup(token, groupId);
+        return ApiResponse.success(null);
+    }
+
     @Operation(summary = "查询群成员列表", description = "查询指定群聊中所有成员的用户信息，只有群成员可以查看。")
     @GetMapping("/{groupId}/members")
     public ApiResponse<List<GroupMemberVO>> listMembers(

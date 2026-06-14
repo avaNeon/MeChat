@@ -20,6 +20,13 @@
         LIMIT 1
     </select>
 
+    <delete id="deleteByUsers">
+        DELETE
+        FROM friend_relation
+        WHERE user_low_id = #{userLowId}
+          AND user_high_id = #{userHighId}
+    </delete>
+
     <select id="selectFriendAccounts" resultType="com.neon.mechat.entity.Account">
         SELECT a.user_id,
                a.nickname,

@@ -118,4 +118,11 @@
         DELETE FROM conversation
         WHERE group_id = #{groupId}
     </delete>
+
+    <delete id="deleteByUsers">
+        DELETE FROM conversation
+        WHERE type = 0
+          AND user_low_id = #{userLowId}
+          AND user_high_id = #{userHighId}
+    </delete>
 </mapper>

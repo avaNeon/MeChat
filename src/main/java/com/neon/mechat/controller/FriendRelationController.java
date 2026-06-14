@@ -83,4 +83,21 @@ public class FriendRelationController
         return ApiResponse.success(friendRelationService.acceptRequest(token, requestId));
     }
 
+    /**
+     * 删除好友关系。
+     *
+     * @param token  登录 token
+     * @param userId 要删除的好友用户 ID
+     * @return 空响应
+     */
+    @Operation(summary = "删除好友", description = "删除与指定用户的好友关系，同时清理对应的单聊会话。重新添加好友后将创建新的会话。")
+    @DeleteMapping("/{userId}")
+    public ApiResponse<Void> deleteFriend(
+            @Parameter(description = "登录 token") @RequestHeader(value = "token", required = false) String token,
+            @Parameter(description = "好友用户ID") @PathVariable Long userId)
+    {
+        friendRelationService.deleteFriend(token, userId);
+        return ApiResponse.success(null);
+    }
+
 }

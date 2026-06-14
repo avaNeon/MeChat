@@ -28,4 +28,6 @@ public interface ConversationMapper
                                   @Param("messageId") Long messageId);
 
     int deleteByGroupId(@Param("groupId") Long groupId);
+
+    int deleteByUsers(@Param("userLowId") Long userLowId, @Param("userHighId") Long userHighId);
 }

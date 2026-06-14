@@ -34,4 +34,13 @@ public interface FriendRelationMapper
      * @return 好友账号列表
      */
     List<Account> selectFriendAccounts(@Param("userId") Long userId);
+
+    /**
+     * 删除一对用户之间的好友关系。
+     *
+     * @param userLowId  较小的用户 ID
+     * @param userHighId 较大的用户 ID
+     * @return 影响行数
+     */
+    int deleteByUsers(@Param("userLowId") Long userLowId, @Param("userHighId") Long userHighId);
 }
